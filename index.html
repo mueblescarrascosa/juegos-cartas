@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>¿A qué jugamos? · Juegos de la baraja española</title>
+<meta name="description" content="Buscador y marcador de juegos de la baraja española: reglas, variantes y cuenta de puntos.">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0c5137">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="¿A qué jugamos?">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yeseva+One&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --baize:#0c5137;
+    --baize-dark:#083a28;
+    --baize-line:#0f6041;
+    --card:#f1e8d2;
+    --card-edge:#d9cba3;
+    --ink:#2c2519;
+    --ink-soft:#6b5f47;
+    --gold:#d3a01e;
+    --gold-bright:#e7bd45;
+    --oros:#c0901a;
+    --copas:#a12f2a;
+    --espadas:#2b5e88;
+    --bastos:#4e8a37;
+    --shadow:rgba(0,0,0,.32);
+    --display:'Yeseva One', Georgia, 'Times New Roman', serif;
+    --sans:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--sans);
+    color:var(--card);
+    padding-top:env(safe-area-inset-top, 0px);
+    padding-bottom:env(safe-area-inset-bottom, 0px);
+    background:
+      radial-gradient(120% 80% at 50% -10%, #12694a 0%, var(--baize) 45%, var(--baize-dark) 100%);
+    background-attachment:fixed;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  /* faint felt weave */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    opacity:.05;
+    background-image:
+      repeating-linear-gradient(45deg, #000 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(-45deg, #000 0 1px, transparent 1px 3px);
+    background-size:6px 6px;
+  }
+  .wrap{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:0 18px 72px;}
+
+  /* ---------- Hero ---------- */
+  header.hero{padding:44px 4px 20px;text-align:center;}
+  .pips{display:flex;gap:16px;justify-content:center;align-items:center;margin-bottom:18px;}
+  .pips svg{width:26px;height:26px;opacity:.9;}
+  h1{
+    font-family:var(--display);
+    font-weight:400;
+    font-size:clamp(2.5rem,8vw,4.4rem);
+    line-height:1.02;
+    margin:0;
+    color:var(--gold-bright);
+    letter-spacing:.5px;
+    text-shadow:0 2px 0 rgba(0,0,0,.25);
+  }
+  .sub{margin:14px auto 0;max-width:46ch;color:#e9e0c8;font-size:1.02rem;opacity:.92;}
+  .legend{
+    margin:22px auto 0;max-width:52ch;font-size:.86rem;color:#cfe3d6;opacity:.85;
+    border-top:1px solid var(--baize-line);border-bottom:1px solid var(--baize-line);
+    padding:12px 6px;display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;
+  }
+  .legend b{color:var(--gold-bright);font-weight:600;}
+  .legend .lg{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
+  .legend svg{width:17px;height:17px;}
+
+  /* ---------- Filters ---------- */
+  .filters{
+    position:sticky;top:env(safe-area-inset-top, 0px);z-index:20;margin:8px -18px 26px;padding:16px 18px;
+    background:linear-gradient(var(--baize-dark), rgba(8,58,40,.94));
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--baize-line);
+    box-shadow:0 8px 22px -14px #000;
+  }
+  .frow{margin-bottom:13px;}
+  .frow:last-child{margin-bottom:0;}
+  .flabel{
+    font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;
+    color:var(--gold);font-weight:600;margin:0 0 7px 2px;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .chip{
+    font-family:var(--sans);font-size:.9rem;font-weight:600;
+    color:#e9e0c8;background:rgba(241,232,210,.07);
+    border:1px solid rgba(241,232,210,.22);border-radius:999px;
+    padding:7px 14px;cursor:pointer;transition:all .15s ease;
+    display:inline-flex;align-items:center;gap:7px;line-height:1;
+  }
+  .chip:hover{background:rgba(241,232,210,.15);border-color:rgba(241,232,210,.4);}
+  .chip:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px;}
+  .chip[aria-pressed="true"]{
+    background:var(--gold);color:#3a2c07;border-color:var(--gold-bright);
+    box-shadow:0 2px 10px -3px rgba(211,160,30,.6);
+  }
+  .chip .pipico{width:15px;height:15px;}
+  .chip[data-palo][aria-pressed="true"] .pipico{color:#3a2c07;}
+
+  .surprise{
+    margin-top:15px;width:100%;font-family:var(--display);font-size:1.15rem;
+    color:#3a2c07;background:linear-gradient(#f0d98a,var(--gold));
+    border:none;border-radius:12px;padding:12px;cursor:pointer;
+    letter-spacing:.5px;transition:transform .12s ease, box-shadow .2s ease;
+    box-shadow:0 4px 0 #a97e12, 0 8px 16px -6px rgba(0,0,0,.5);
+  }
+  .surprise:hover{transform:translateY(-1px);}
+  .surprise:active{transform:translateY(3px);box-shadow:0 1px 0 #a97e12;}
+  .surprise:focus-visible{outline:2px solid #fff;outline-offset:3px;}
+
+  .count{font-size:.9rem;color:#cfe3d6;margin:0 0 16px 2px;opacity:.85;}
+  .count b{color:var(--gold-bright);}
+
+  /* ---------- Grid of naipes ---------- */
+  .grid{display:grid;grid-template-columns:1fr;gap:20px;}
+  @media(min-width:600px){.grid{grid-template-columns:1fr 1fr;gap:22px;}}
+  @media(min-width:960px){.grid{grid-template-columns:1fr 1fr 1fr;}}
+
+  .naipe{
+    position:relative;text-align:left;cursor:pointer;
+    background:linear-gradient(160deg,#f6eeda,var(--card));
+    color:var(--ink);border:1px solid var(--card-edge);border-radius:14px;
+    padding:20px 18px 18px;
+    box-shadow:0 10px 26px -12px var(--shadow), inset 0 0 0 1px rgba(255,255,255,.5);
+    transition:transform .16s ease, box-shadow .16s ease;
+    overflow:hidden;font-family:var(--sans);width:100%;
+    display:flex;flex-direction:column;min-height:210px;
+  }
+  .naipe:hover{transform:translateY(-4px);box-shadow:0 18px 34px -14px var(--shadow), inset 0 0 0 1px rgba(255,255,255,.6);}
+  .naipe:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+
+  /* corner rank like a real card */
+  .corner{position:absolute;display:flex;flex-direction:column;align-items:center;line-height:.9;}
+  .corner.tl{top:12px;left:13px;}
+  .corner.br{bottom:12px;right:13px;transform:rotate(180deg);}
+  .corner .rank{font-family:var(--display);font-size:1.55rem;}
+  .corner .pipico{width:17px;height:17px;margin-top:3px;}
+  .corner .plabel{display:none;}
+
+  .naipe .body{padding:0 30px;flex:1;display:flex;flex-direction:column;}
+  .fam{
+    font-size:.66rem;text-transform:uppercase;letter-spacing:.15em;font-weight:700;
+    margin:2px 0 6px;
+  }
+  .naipe h3{font-family:var(--display);font-weight:400;font-size:1.5rem;margin:0 0 8px;line-height:1.05;color:var(--ink);}
+  .hook{font-size:.92rem;color:#4a4130;margin:0 0 14px;flex:1;}
+
+  .stats{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--ink-soft);align-items:center;margin-top:auto;}
+  .stat{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+  .stat svg{width:15px;height:15px;opacity:.7;}
+  .stat b{color:var(--ink);font-weight:600;}
+  .dots{display:inline-flex;gap:3px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:rgba(44,37,25,.18);}
+  .dot.on{background:var(--copas);}
+
+  .verlink{margin-top:14px;font-size:.82rem;font-weight:600;color:var(--copas);display:inline-flex;align-items:center;gap:5px;}
+  .verlink svg{width:13px;height:13px;}
+
+  .empty{
+    text-align:center;padding:48px 20px;color:#cfe3d6;
+    border:1px dashed var(--baize-line);border-radius:16px;background:rgba(0,0,0,.12);
+  }
+  .empty p{margin:0 0 6px;font-size:1.05rem;}
+  .empty span{opacity:.75;font-size:.9rem;}
+
+  /* ---------- Modal ---------- */
+  .overlay{
+    position:fixed;inset:0;z-index:50;background:rgba(4,20,14,.72);
+    backdrop-filter:blur(3px);display:none;align-items:flex-end;justify-content:center;
+    padding:0;
+  }
+  .overlay.open{display:flex;}
+  @media(min-width:640px){.overlay{align-items:center;padding:24px;}}
+  .sheet{
+    background:linear-gradient(180deg,#f7f0dc,var(--card));color:var(--ink);
+    width:100%;max-width:620px;max-height:92vh;overflow-y:auto;
+    border-radius:20px 20px 0 0;
+    box-shadow:0 -8px 40px rgba(0,0,0,.5);
+    animation:slideUp .28s cubic-bezier(.2,.8,.2,1);
+    position:relative;
+  }
+  @media(min-width:640px){.sheet{border-radius:20px;animation:pop .24s ease;}}
+  @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+  @keyframes pop{from{transform:scale(.94);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+  .sheet-head{
+    position:sticky;top:0;padding:22px 24px 16px;
+    background:linear-gradient(180deg,#f7f0dc 70%, rgba(247,240,220,0));
+    display:flex;gap:14px;align-items:flex-start;
+  }
+  .sheet-head .htext{flex:1;}
+  .sheet-head .fam{margin-bottom:4px;}
+  .sheet-head h2{font-family:var(--display);font-weight:400;font-size:2rem;margin:0;line-height:1.02;color:var(--ink);}
+  .sheet-head .bigpip{width:44px;height:44px;flex-shrink:0;margin-top:2px;}
+  .closeb{
+    position:sticky;top:14px;float:right;margin:-6px -6px 0 0;
+    width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;
+    background:rgba(44,37,25,.1);color:var(--ink);font-size:1.3rem;line-height:1;
+    display:flex;align-items:center;justify-content:center;transition:background .15s;
+    z-index:2;
+  }
+  .closeb:hover{background:rgba(44,37,25,.22);}
+  .closeb:focus-visible{outline:2px solid var(--copas);outline-offset:2px;}
+
+  .sheet-body{padding:4px 24px 30px;}
+  .metabar{display:flex;flex-wrap:wrap;gap:8px 18px;padding:0 0 18px;margin-bottom:18px;border-bottom:1px solid var(--card-edge);font-size:.86rem;color:var(--ink-soft);}
+  .metabar .stat b{color:var(--ink);}
+  .sheet h4{
+    font-size:.74rem;text-transform:uppercase;letter-spacing:.14em;color:var(--copas);
+    font-weight:700;margin:22px 0 8px;
+  }
+  .sheet h4:first-child{margin-top:4px;}
+  .obj{font-size:1rem;color:#3a3223;margin:0;}
+  ol.steps{margin:0;padding-left:0;counter-reset:s;list-style:none;}
+  ol.steps li{
+    position:relative;padding:0 0 12px 40px;margin:0;font-size:.96rem;color:#3a3223;counter-increment:s;
+  }
+  ol.steps li::before{
+    content:counter(s);position:absolute;left:0;top:-1px;
+    width:26px;height:26px;border-radius:50%;
+    background:var(--baize);color:var(--gold-bright);
+    font-family:var(--display);font-size:.95rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .vals{background:rgba(43,94,136,.08);border-left:3px solid var(--espadas);padding:11px 14px;border-radius:0 8px 8px 0;font-size:.92rem;color:#33475a;margin:0;}
+  .tip{background:rgba(193,144,26,.12);border-left:3px solid var(--gold);padding:11px 14px;border-radius:0 8px 8px 0;font-size:.92rem;color:#5c4a12;margin:0;}
+  .tip b, .vals b{color:inherit;}
+  .note{background:rgba(161,47,42,.09);border-left:3px solid var(--copas);padding:11px 14px;border-radius:0 8px 8px 0;font-size:.9rem;color:#6d2b26;margin:14px 0 0;}
+
+  /* ---------- Tabs ---------- */
+  .tabs{display:flex;gap:8px;justify-content:center;margin:0 0 24px;}
+  .tab{
+    font-family:var(--sans);font-weight:600;font-size:.98rem;color:#cfe3d6;
+    background:rgba(0,0,0,.12);border:1px solid var(--baize-line);border-radius:999px;
+    padding:9px 26px;cursor:pointer;transition:all .15s;
+  }
+  .tab:hover{background:rgba(0,0,0,.24);}
+  .tab[aria-selected="true"]{background:var(--gold);color:#3a2c07;border-color:var(--gold-bright);}
+  .tab:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px;}
+
+  /* ---------- Scoreboard ---------- */
+  .board-controls{display:flex;flex-wrap:wrap;gap:20px;margin:8px 0 22px;align-items:flex-start;}
+  .ctl{display:flex;flex-direction:column;gap:8px;}
+  .ctl-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;color:var(--gold);font-weight:600;}
+  .ctl-body{display:flex;flex-wrap:wrap;gap:7px;align-items:center;}
+  .ctl-static{color:#e9e0c8;font-weight:600;font-size:.95rem;padding:6px 2px;}
+  .tgt{
+    width:74px;background:rgba(241,232,210,.1);border:1px solid rgba(241,232,210,.25);
+    border-radius:8px;color:#f1e8d2;font-family:var(--sans);font-weight:700;font-size:1rem;
+    padding:7px 8px;text-align:center;-moz-appearance:textfield;
+  }
+  .tgt::-webkit-outer-spin-button,.tgt::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .tgt:focus{outline:2px solid var(--gold-bright);}
+  .tgt-hint{font-size:.82rem;color:#cfe3d6;opacity:.8;}
+  .dirbadge{
+    align-self:center;font-size:.82rem;color:#eadfa0;
+    background:rgba(0,0,0,.2);border:1px solid var(--baize-line);border-radius:999px;
+    padding:7px 14px;max-width:100%;
+  }
+
+  .sb-win{
+    background:linear-gradient(#f0d98a,var(--gold));color:#3a2c07;border-radius:14px;
+    padding:14px 18px;font-family:var(--display);font-size:1.35rem;
+    display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px;
+    box-shadow:0 8px 20px -8px rgba(0,0,0,.5);
+  }
+  .sb-win button{
+    font-family:var(--sans);font-weight:600;font-size:.85rem;color:#f1e8d2;
+    background:var(--baize);border:none;border-radius:8px;padding:8px 14px;cursor:pointer;
+  }
+  .sb-win button:hover{background:var(--baize-dark);}
+
+  .board-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:14px;}
+  .pcard{
+    background:linear-gradient(160deg,#f6eeda,var(--card));border:1px solid var(--card-edge);
+    border-radius:14px;padding:14px 10px 12px;text-align:center;color:var(--ink);
+    box-shadow:0 8px 20px -12px var(--shadow);transition:box-shadow .15s;
+  }
+  .pcard.leader{box-shadow:0 0 0 2px var(--bastos), 0 8px 20px -12px var(--shadow);}
+  .pcard.winner{box-shadow:0 0 0 2px var(--gold), 0 8px 22px -10px rgba(0,0,0,.5);}
+  .pcard.out{opacity:.6;box-shadow:0 0 0 2px var(--copas), 0 8px 20px -12px var(--shadow);}
+  .pname{
+    width:100%;border:none;background:transparent;text-align:center;
+    font-family:var(--sans);font-weight:700;font-size:.98rem;color:var(--ink);
+    border-bottom:1px dashed transparent;padding:2px;
+  }
+  .pname:focus{outline:none;border-bottom-color:var(--card-edge);}
+  .ptot-wrap{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 0 6px;}
+  .ptot{
+    width:74px;text-align:center;font-family:var(--display);font-size:1.95rem;
+    border:none;background:transparent;color:var(--ink);-moz-appearance:textfield;padding:0;
+  }
+  .ptot::-webkit-outer-spin-button,.ptot::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .ptot:focus{outline:none;background:rgba(211,160,30,.14);border-radius:6px;}
+  .pm,.pp{
+    width:32px;height:32px;border-radius:50%;border:1px solid var(--card-edge);background:#fff;
+    color:var(--ink);font-size:1.2rem;cursor:pointer;line-height:1;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .pm:hover,.pp:hover{background:#efe6cd;}
+  .pm:focus-visible,.pp:focus-visible{outline:2px solid var(--espadas);outline-offset:1px;}
+  .pquick{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;}
+  .qk{
+    font-size:.8rem;font-weight:600;color:var(--espadas);background:rgba(43,94,136,.1);
+    border:1px solid rgba(43,94,136,.25);border-radius:999px;padding:4px 10px;cursor:pointer;
+  }
+  .qk:hover{background:rgba(43,94,136,.2);}
+  .qk:focus-visible{outline:2px solid var(--espadas);outline-offset:1px;}
+  .plabel{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-top:9px;min-height:1em;}
+
+  .board-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;}
+  .board-reset, .board-undo{
+    background:transparent;border:1px solid var(--baize-line);color:#cfe3d6;
+    border-radius:10px;padding:10px 18px;cursor:pointer;font-weight:600;font-size:.9rem;
+  }
+  .board-undo{border-color:rgba(231,189,69,.5);color:var(--gold-bright);}
+  .board-reset:hover, .board-undo:hover{background:rgba(0,0,0,.15);}
+  .board-reset:focus-visible, .board-undo:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px;}
+  .board-foot{font-size:.8rem;color:#cfe3d6;opacity:.6;margin:14px 2px 0;}
+  .rules-link{
+    display:inline-flex;align-items:center;gap:6px;align-self:center;
+    background:none;border:none;cursor:pointer;
+    color:var(--gold-bright);font-family:var(--sans);font-weight:600;font-size:.85rem;
+    text-decoration:underline;text-underline-offset:3px;padding:6px 2px;
+  }
+  .rules-link:hover{color:#f0d98a;}
+  .rules-link:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px;border-radius:4px;}
+
+  /* track button inside detail sheet */
+  .track-btn{
+    width:100%;margin:2px 0 6px;background:var(--baize);color:var(--gold-bright);border:none;
+    border-radius:12px;padding:13px;font-family:var(--sans);font-weight:600;font-size:.96rem;
+    cursor:pointer;transition:background .15s;
+  }
+  .track-btn:hover{background:var(--baize-line);}
+  .track-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+
+  /* round-by-round entry */
+  .ptot-line{display:flex;align-items:center;justify-content:center;gap:5px;margin:6px 0 2px;font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.08em;font-weight:700;}
+  .ptot-line .ptot{width:54px;font-size:1.5rem;}
+  .rin{
+    width:82px;text-align:center;font-family:var(--sans);font-weight:700;font-size:1.2rem;color:var(--ink);
+    border:1px solid var(--card-edge);border-radius:9px;padding:7px;background:#fff;-moz-appearance:textfield;
+  }
+  .rin::-webkit-outer-spin-button,.rin::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .rin:focus{outline:2px solid var(--gold);}
+  .rin-lab{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin:4px 0 0;font-weight:700;}
+  .rprev{font-family:var(--display);font-size:1.7rem;color:var(--bastos);line-height:1;}
+
+  .round-panel{margin-top:26px;background:rgba(0,0,0,.16);border:1px solid var(--baize-line);border-radius:16px;padding:18px 15px;}
+  .round-title{font-family:var(--display);font-size:1.3rem;color:var(--gold-bright);margin-bottom:15px;}
+  .rcat{margin-bottom:17px;}
+  .rcat:last-of-type{margin-bottom:8px;}
+  .rcat-label{font-size:.85rem;font-weight:700;color:#eadfa0;margin-bottom:9px;}
+  .rcat-pts{font-weight:600;color:#cfe3d6;opacity:.75;font-size:.76rem;}
+  .rcat-opts{display:flex;flex-wrap:wrap;gap:7px;align-items:center;}
+  .ropt{
+    font-family:var(--sans);font-size:.88rem;font-weight:600;color:#e9e0c8;
+    background:rgba(241,232,210,.08);border:1px solid rgba(241,232,210,.22);border-radius:999px;
+    padding:7px 13px;cursor:pointer;transition:all .14s;
+  }
+  .ropt:hover{background:rgba(241,232,210,.16);}
+  .ropt.on{background:var(--gold);color:#3a2c07;border-color:var(--gold-bright);}
+  .ropt:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px;}
+  .ramt{
+    width:92px;background:rgba(241,232,210,.1);border:1px solid rgba(241,232,210,.28);border-radius:8px;
+    color:#f1e8d2;font-weight:700;font-size:.95rem;padding:7px 8px;text-align:center;-moz-appearance:textfield;
+  }
+  .ramt::-webkit-outer-spin-button,.ramt::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .ramt:focus{outline:2px solid var(--gold-bright);}
+  .rcat-counts{display:flex;flex-wrap:wrap;gap:10px;}
+  .rcount{display:flex;align-items:center;gap:7px;background:rgba(241,232,210,.06);border:1px solid rgba(241,232,210,.18);border-radius:10px;padding:5px 9px;}
+  .rcount span{font-size:.85rem;color:#e9e0c8;font-weight:600;}
+  .rcount b{min-width:16px;text-align:center;color:#fff;font-size:1rem;}
+  .rcbtn{width:27px;height:27px;border-radius:50%;border:1px solid rgba(241,232,210,.3);background:rgba(241,232,210,.1);color:#f1e8d2;font-size:1rem;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;}
+  .rcbtn:hover{background:rgba(241,232,210,.2);}
+  .rcbtn:focus-visible{outline:2px solid var(--gold-bright);outline-offset:1px;}
+  .round-hint{font-size:.82rem;color:#cfe3d6;opacity:.75;margin:0 0 13px;}
+  .round-add{
+    width:100%;font-family:var(--display);font-size:1.1rem;color:#3a2c07;
+    background:linear-gradient(#f0d98a,var(--gold));border:none;border-radius:12px;padding:12px;cursor:pointer;
+    box-shadow:0 3px 0 #a97e12;transition:transform .12s ease;
+  }
+  .round-add:hover{transform:translateY(-1px);}
+  .round-add:active{transform:translateY(2px);box-shadow:0 1px 0 #a97e12;}
+  .round-add:focus-visible{outline:2px solid #fff;outline-offset:2px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- suit + ui icon definitions -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="oros" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/>
+      <circle cx="12" cy="12" r="4.4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <circle cx="12" cy="12" r="1.4" fill="currentColor"/>
+    </symbol>
+    <symbol id="copas" viewBox="0 0 24 24">
+      <path d="M6.5 4h11l-.6 4.2a5 5 0 0 1-9.8 0z" fill="currentColor"/>
+      <rect x="11" y="12.5" width="2" height="4.6" fill="currentColor"/>
+      <rect x="7.8" y="18" width="8.4" height="2" rx="1" fill="currentColor"/>
+    </symbol>
+    <symbol id="espadas" viewBox="0 0 24 24">
+      <path d="M12 2.5 13 15h-2z" fill="currentColor"/>
+      <path d="M12 15l-2.4 3.2h4.8z" fill="currentColor"/>
+      <rect x="7.4" y="14.6" width="9.2" height="1.9" rx=".9" fill="currentColor"/>
+      <rect x="11.1" y="16.8" width="1.8" height="4.4" rx=".6" fill="currentColor"/>
+    </symbol>
+    <symbol id="bastos" viewBox="0 0 24 24">
+      <circle cx="12" cy="5.4" r="3.2" fill="currentColor"/>
+      <circle cx="8.4" cy="9" r="2.4" fill="currentColor"/>
+      <circle cx="15.6" cy="9" r="2.4" fill="currentColor"/>
+      <rect x="10.6" y="7.5" width="2.8" height="13" rx="1.4" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-players" viewBox="0 0 24 24">
+      <circle cx="9" cy="8" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M3.5 20c0-3.3 2.5-5.5 5.5-5.5s5.5 2.2 5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M16 5.6a3.2 3.2 0 0 1 0 6M17 14.8c2.4.5 4 2.6 4 5.2" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M12 7v5.2l3.4 2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-deck" viewBox="0 0 24 24">
+      <rect x="4.5" y="6" width="10" height="14" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M8 4h8.5a1.6 1.6 0 0 1 1.6 1.6V17" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    </symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24">
+      <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="pips" aria-hidden="true">
+      <svg style="color:var(--oros)"><use href="#oros"/></svg>
+      <svg style="color:var(--copas)"><use href="#copas"/></svg>
+      <svg style="color:var(--espadas)"><use href="#espadas"/></svg>
+      <svg style="color:var(--bastos)"><use href="#bastos"/></svg>
+    </div>
+    <h1>¿A qué jugamos?</h1>
+    <p class="sub">Doce juegos de la baraja española. Filtra por cuánta gente sois, el rato que tenéis y las ganas de complicaros.</p>
+    <div class="legend">
+      <span class="lg"><b>El número</b> de la esquina = jugadores ideales</span>
+      <span class="lg">El palo = la familia del juego:</span>
+      <span class="lg"><svg style="color:var(--oros)"><use href="#oros"/></svg> apuestas</span>
+      <span class="lg"><svg style="color:var(--espadas)"><use href="#espadas"/></svg> bazas</span>
+      <span class="lg"><svg style="color:var(--copas)"><use href="#copas"/></svg> fiesta</span>
+      <span class="lg"><svg style="color:var(--bastos)"><use href="#bastos"/></svg> habilidad</span>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Secciones">
+    <button class="tab" role="tab" data-view="games" aria-selected="true">Juegos</button>
+    <button class="tab" role="tab" data-view="scores" aria-selected="false">Marcador</button>
+  </nav>
+
+  <div id="view-games">
+  <section class="filters" aria-label="Filtros">
+    <div class="frow">
+      <p class="flabel">Jugadores</p>
+      <div class="chips" id="f-players" role="group"></div>
+    </div>
+    <div class="frow">
+      <p class="flabel">Cuánto dura</p>
+      <div class="chips" id="f-time" role="group"></div>
+    </div>
+    <div class="frow">
+      <p class="flabel">Dificultad</p>
+      <div class="chips" id="f-dif" role="group"></div>
+    </div>
+    <div class="frow">
+      <p class="flabel">Tipo de juego</p>
+      <div class="chips" id="f-palo" role="group"></div>
+    </div>
+    <button class="surprise" id="surprise">Sorpréndeme</button>
+  </section>
+
+  <p class="count" id="count"></p>
+  <div class="grid" id="grid"></div>
+  </div><!-- /view-games -->
+
+  <div id="view-scores" hidden>
+    <section class="board" aria-label="Marcador">
+      <div class="frow"><p class="flabel">Juego</p><div class="chips" id="sb-game" role="group"></div></div>
+      <div class="board-controls" id="sb-controls"></div>
+      <div id="sb-banner"></div>
+      <div class="board-grid" id="sb-grid"></div>
+      <div id="sb-round"></div>
+      <div class="board-actions">
+        <button class="board-undo" id="sb-undo" hidden>↶ Deshacer</button>
+        <button class="board-reset" id="sb-reset">Reiniciar puntos</button>
+      </div>
+      <p class="board-foot">Los puntos se guardan solos en este dispositivo mientras no cierres la página.</p>
+    </section>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script>
+const PALOS = {
+  oros:    {label:'Apuestas y farol', color:'var(--oros)'},
+  espadas: {label:'Juego de bazas',   color:'var(--espadas)'},
+  copas:   {label:'Fiesta y risas',   color:'var(--copas)'},
+  bastos:  {label:'Habilidad',        color:'var(--bastos)'}
+};
+const TIME = {rapido:'Rápido', medio:'Medio', largo:'Largo'};
+const DIF  = {1:'Fácil', 2:'Media', 3:'Difícil'};
+
+const GAMES = [
+  {
+    id:'chinchon', nombre:'Chinchón', palo:'bastos',
+    minJ:2, maxJ:8, optLabel:'4', optNum:4,
+    tCat:'largo', tMin:25, tMax:45, dif:2,
+    baraja:'40 (+2 comodines opc.)', cartas:'7',
+    hook:'Combina escaleras y grupos antes de que el rival te deje con las figuras en la mano.',
+    objetivo:'Ser el primero en juntar toda la mano en combinaciones. Los demás cargan con los puntos que les sobran, y quien llega a 100 queda eliminado.',
+    valores:'Cartas sueltas al contar: del 1 al 7 su número; sota, caballo y rey valen 10.',
+    reglas:[
+      'Reparte 7 cartas a cada uno. El resto va boca abajo (el montón) y, al lado, una carta boca arriba (el descarte).',
+      'En tu turno robas una carta —del montón o del descarte— y luego tiras una que no quieras.',
+      'Combina en escaleras (3 o más seguidas del mismo palo; tras el 7 va la sota) o grupos (3-4 cartas del mismo número).',
+      'Cuando tienes todo combinado y como mucho te sobra una carta baja (5 o menos), cierras y termina la ronda.',
+      'Los demás suman las cartas que no combinaron. Se juega hasta que alguien llega a 100.',
+      'Chinchón: ligar las 7 en una sola escalera del mismo palo gana la partida de golpe.'
+    ],
+    consejo:'Guarda siempre una carta baja para poder cerrar; quedarte con figuras sueltas es lo que más caro se paga.',
+    nota:'Variantes: con comodines (completan combinaciones, pero sueltos en la mano al cerrar cuentan 25); chinchón con comodín no gana pero resta 25; reenganche (al pasar de 100 la primera vez puedes volver con la puntuación del líder); y hay quien deja cerrar con hasta 5 puntos sueltos en vez de exigir combinarlo todo.'
+  },
+  {
+    id:'tute', nombre:'Tute', palo:'espadas',
+    minJ:2, maxJ:4, optLabel:'2 o 4', optNum:4,
+    tCat:'medio', tMin:20, tMax:30, dif:2,
+    baraja:'40', cartas:'10 (a 4) / 8 (a 2)',
+    hook:'Bazas, triunfo y cantes: el clásico de sobremesa por parejas.',
+    objetivo:'Ganar bazas para acumular puntos y cantar reyes con caballos. Se gana llegando a 101 o reuniendo los 4 reyes o los 4 caballos (tute).',
+    valores:'As 11, tres 10, rey 4, caballo 3, sota 2. Orden de fuerza: as, tres, rey, caballo, sota, 7, 6, 5, 4, 2 (¡el tres se lleva al rey!).',
+    reglas:[
+      'Reparte 10 cartas por cabeza (a 4 jugadores). La última marca el triunfo, el palo que manda sobre los demás.',
+      'Se juega por bazas: hay que asistir al palo de salida; si no tienes, fallas con un triunfo o tiras otra carta.',
+      'Gana la baza la carta más alta del palo de salida, o el triunfo más alto si alguien ha fallado.',
+      'Rey + caballo del mismo palo = cante: 40 si es el triunfo, 20 en otro palo. Se canta justo tras ganar una baza.',
+      'La última baza suma 10 puntos extra.',
+      'Reunir los 4 reyes o los 4 caballos en la mano = tute, y gana la partida.'
+    ],
+    consejo:'Guarda triunfos para robar las bazas donde el rival suelte ases y treses.',
+    nota:'Variantes: el tute subastado (o cabrón/cabrero) para 3 jugadores, con 36 cartas y una subasta donde uno elige triunfo y juega solo contra los otros dos; el tute individual (cada uno a lo suyo); y las diez de últimas (10 puntos al que gana la última baza).'
+  },
+  {
+    id:'cinquillo', nombre:'Cinquillo', palo:'bastos',
+    minJ:3, maxJ:10, optLabel:'4-6', optNum:5,
+    tCat:'rapido', tMin:10, tMax:15, dif:1,
+    baraja:'40', cartas:'toda la baraja',
+    hook:'Coloca tus cartas en fila hasta quedarte sin ninguna. Fácil para todos.',
+    objetivo:'Deshacerte de todas tus cartas colocándolas en las cuatro escaleras del centro, una por palo.',
+    reglas:[
+      'Reparte toda la baraja entre los jugadores (da igual si a alguno le toca una de más).',
+      'Empieza quien tenga el 5 de oros, poniéndolo en el centro. El 5 es la carta que abre cada palo.',
+      'Por turnos, coloca una carta que continúe una escalera hacia arriba o hacia abajo, o abre un palo nuevo con su 5.',
+      'Si no puedes colocar ninguna carta, pasas.',
+      'Gana quien se queda sin cartas el primero.'
+    ],
+    consejo:'No sueltes tus 5 y 6 a la ligera: mientras los retengas, bloqueas a los demás.',
+    nota:'Variantes: cinquillo con montón (baraja de 55 con comodines, 10 cartas cada uno y robas del montón si no puedes colocar); cinquillo cabrón (basta con seguir el palo, no hace falta que sean consecutivas, y colocar mal bloquea las posiciones intermedias); y con bote de fichas al pasar.'
+  },
+  {
+    id:'escoba', nombre:'Escoba', palo:'bastos',
+    minJ:2, maxJ:4, optLabel:'2', optNum:2,
+    tCat:'medio', tMin:15, tMax:25, dif:2,
+    baraja:'40', cartas:'3 (+4 en la mesa)',
+    hook:'Suma 15 y barre la mesa. Sencillo y con chispa.',
+    objetivo:'Recoger cartas de la mesa haciendo que sumen 15 con una carta de tu mano. Se juega a 15-30 puntos.',
+    valores:'As 1, del 2 al 7 su número, sota 8, caballo 9, rey 10.',
+    reglas:[
+      'Reparte 3 cartas a cada jugador y pon 4 boca arriba en la mesa.',
+      'Echa una carta e intenta que, con una o varias de la mesa, sume exactamente 15. Si lo logras, te llevas todas esas cartas.',
+      'Si además dejas la mesa vacía, cantas "¡escoba!" y sumas 1 punto extra.',
+      'Si tu carta no suma 15 con nada, se queda en la mesa.',
+      'Al quedaros sin cartas, reparte 3 más (las 4 del centro solo se ponen al principio), hasta agotar la baraja.',
+      'Puntos: más cartas, más oros, el 7 de oros, más sietes, y 1 por cada escoba.'
+    ],
+    consejo:'Vigila el 7 de oros: vale un punto y todos van a por él.',
+    nota:'Variantes: escoba en el reparto (si las 4 cartas de la mesa suman 15 al empezar, el que reparte se las lleva); la setenta o primera (categoría extra de puntos con una carta de cada palo); y la escoba a menos, donde hay que evitar sumar 15 y gana el que menos puntúa. Se juega a 15, 21 o 30.'
+  },
+  {
+    id:'mus', nombre:'Mus', palo:'oros',
+    minJ:4, maxJ:4, optLabel:'4', optNum:4,
+    tCat:'largo', tMin:40, tMax:60, dif:3,
+    baraja:'40', cartas:'4',
+    hook:'Farol, señas y apuestas por parejas. El rey de los juegos de bar.',
+    objetivo:'Ganar envites por parejas en cuatro lances —grande, chica, pares y juego— ayudándote de señas con la cara. Se juega a 30 o 40 tantos.',
+    valores:'Los treses cuentan como reyes y los doses como ases. En el juego, el 31 es la mejor mano posible.',
+    reglas:[
+      'Cuatro jugadores en dos parejas enfrentadas. Se reparten 4 cartas a cada uno.',
+      'Descarte: se pide "mus" para cambiar cartas, hasta que alguien corta con "no hay mus".',
+      'Cuatro lances por orden: Grande (cartas altas), Chica (bajas), Pares (parejas) y Juego (sumar 31 o más).',
+      'En cada lance se envida (apuesta). El rival puede querer, no querer, subir o echar un órdago.',
+      'Rechazar paga lo que había antes del envite. Retirarse en pares o juego cuesta doble: pierdes el premio de tus cartas.',
+      'Las señas pactadas con tu compañero le avisan de lo que llevas, delante de los rivales.'
+    ],
+    consejo:'No envides si no estás dispuesto a aguantar la subida: regalarle al rival tu propia apuesta es el error del novato.',
+    nota:'Variantes: a 8 reyes (treses como reyes y doses como ases, lo normal) o a 4 reyes; con o sin señas; la 31 real (tres sietes y figura ganan a otro 31); y a 30 o 40 tantos, con varias partidas formando una vaca. Es el más complejo de la lista: tienes una guía completa del Mus aparte con los cuatro lances, los ejemplos y las señas.'
+  },
+  {
+    id:'rapido', nombre:'Rápido', palo:'bastos',
+    minJ:2, maxJ:2, optLabel:'2', optNum:2,
+    tCat:'rapido', tMin:5, tMax:10, dif:1,
+    baraja:'40', cartas:'4 + montón propio',
+    hook:'Sin turnos y a toda velocidad. Puros reflejos para dos.',
+    objetivo:'Soltar tus cartas en los montones centrales antes que el rival. No hay turnos: los dos jugáis a la vez. Es la versión española del "Speed".',
+    reglas:[
+      'Reparte la baraja en dos mitades. Cada uno hace su montón boca abajo y coge 4 cartas en la mano.',
+      'En el centro se ponen dos cartas boca arriba: son los dos montones sobre los que jugáis.',
+      'A la de "¡ya!", los dos a la vez soltáis cartas sobre los montones: solo la inmediatamente superior o inferior. El palo da igual (sobre un 7 va un 6 o una sota).',
+      'Cada vez que sueltas, repones robando de tu montón para tener siempre 4 en la mano.',
+      'Si os atascáis los dos, cada uno voltea una carta nueva al centro y se sigue.',
+      'Gana quien se queda sin cartas el primero.'
+    ],
+    consejo:'Ten pensadas tus dos jugadas posibles antes de destapar; esto se gana por décimas de segundo.',
+    nota:'Es la versión española del Speed. Se puede jugar con 3 cartas en la mano en vez de 4, o con reglas distintas para desbloquear cuando os atascáis los dos.'
+  },
+  {
+    id:'sieteymedia', nombre:'Siete y Media', palo:'oros',
+    minJ:2, maxJ:8, optLabel:'4-5', optNum:5,
+    tCat:'rapido', tMin:10, tMax:15, dif:1,
+    baraja:'40', cartas:'1 (se piden más)',
+    hook:'Acércate a 7 y medio sin pasarte. Rápido y con banca.',
+    objetivo:'Quedarte lo más cerca posible de 7,5 puntos sin pasarte. Rapidísimo, típico de sobremesa con calderilla.',
+    valores:'Del 1 al 7 su número; sota, caballo y rey valen medio punto (0,5).',
+    reglas:[
+      'Un jugador hace de banca y reparte una carta tapada a cada uno.',
+      'Por turnos, te plantas o pides más cartas boca arriba, buscando acercarte a 7,5.',
+      'Si te pasas de 7,5, pierdes la ronda al momento.',
+      'La banca juega la última: gana a todos los que tengan igual o menos puntuación que ella, y pierde contra los que la superen sin pasarse.',
+      'Hacer 7,5 justo suele darte la banca en la ronda siguiente.'
+    ],
+    consejo:'Con 6 o 6,5 párate; el riesgo de pasarte casi nunca compensa.',
+    nota:'Variantes: la banca puede ser fija o rotar (pasa al que hace 7,5 justo); se suele jugar con apuestas antes de cada mano. Es prima de la veintiuna (a 21) y la treinta y una (a 31).'
+  },
+  {
+    id:'culo', nombre:'Culo', palo:'copas',
+    minJ:3, maxJ:8, optLabel:'5-6', optNum:6,
+    tCat:'medio', tMin:20, tMax:30, dif:1,
+    baraja:'40 o 48', cartas:'toda la baraja',
+    hook:'Suéltalo todo antes que nadie o acaba siendo el Culo.',
+    objetivo:'Quedarte sin cartas el primero (el Presidente). El último con cartas es el Culo, y en la ronda siguiente tiene que regalarle sus mejores cartas al Presidente.',
+    reglas:[
+      'Reparte toda la baraja. Sale quien tenga la carta más baja acordada.',
+      'Puedes echar una carta o varias iguales a la vez; el siguiente debe superar con la misma cantidad, o pasar.',
+      'El 2 suele ser la carta más alta del juego, por encima del rey.',
+      'Cuando todos pasan seguidos, se retira la mesa y abre nueva jugada quien echó la última carta.',
+      'El primero sin cartas es el Presidente; el último, el Culo.',
+      'Entre rondas, el Culo da sus mejores cartas al Presidente, recibe las peores y le toca repartir.'
+    ],
+    consejo:'Guarda los doses y las cartas altas para rematar rondas y quitarte de encima el puesto de Culo.',
+    nota:'Variantes: con comodín (completa parejas/tríos o gana a todo, incluso al 2); saltar o "plin" (si igualas el valor en vez de superarlo, el siguiente pierde turno); revolución (cuatro iguales invierten el orden, el 3 pasa a ser la más alta); escaleras permitidas; y la carta que "limpia" la mesa (2, comodín u 8), con la que en muchas mesas no puedes ganar si terminas con ella.'
+  },
+  {
+    id:'brisca', nombre:'Brisca', palo:'espadas',
+    minJ:2, maxJ:6, optLabel:'2 o 4', optNum:2,
+    tCat:'rapido', tMin:10, tMax:15, dif:1,
+    baraja:'40', cartas:'3',
+    hook:'Un tute en pequeño: fácil de pillar, difícil de soltar.',
+    objetivo:'Ganar bazas y sumar más puntos que el rival. Solo tienes 3 cartas y no hay que asistir al palo, así que es ligero. Suele ganar quien pasa de 60.',
+    valores:'As 11, tres 10, rey 4, caballo 3, sota 2. Orden de fuerza: as, tres, rey, caballo, sota, 7, 6, 5, 4, 2.',
+    reglas:[
+      'Reparte 3 cartas a cada uno. La siguiente carta va boca arriba bajo el montón: su palo es el triunfo de toda la partida.',
+      'Se echa una carta cualquiera; aquí no hace falta asistir al palo de salida.',
+      'Gana la baza la carta más alta del palo de salida, o un triunfo, que gana siempre a los demás palos.',
+      'Después de cada baza, todos roban una carta para volver a tener 3.',
+      'Al acabar el montón se juegan las últimas 3 bazas y se cuentan los puntos (120 en total).'
+    ],
+    consejo:'No malgastes ases y treses en bazas que no importan; resérvalos para cuando puedas triunfar.',
+    nota:'Variantes: con arrastre (al agotarse el mazo, en las 3 últimas bazas hay que asistir al palo, y en la versión estricta intentar ganar la baza); diez de últimas (quien gana la última baza suma 10 puntos, prestado del tute); cambiar el 7 de triunfo por la carta de triunfo a la vista si lo tienes (o el 2 por el 7), mientras quede mazo; y señas con el compañero en la versión por parejas. Acordadlo antes de empezar.'
+  },
+  {
+    id:'mentiroso', nombre:'El Mentiroso', palo:'copas',
+    minJ:3, maxJ:8, optLabel:'5-6', optNum:6,
+    tCat:'medio', tMin:15, tMax:25, dif:1,
+    baraja:'40 o 48', cartas:'toda la baraja',
+    hook:'Elige un número, miéntelo con cara de póker y no te dejes pillar.',
+    objetivo:'Deshacerte de todas tus cartas mintiendo sobre lo que echas, sin que nadie te descubra.',
+    reglas:[
+      'Reparte toda la baraja entre los jugadores.',
+      'El que abre elige un número y tira una o varias cartas boca abajo diciendo cuántas son de ese número (ej: "dos treses"). Ese número manda toda la ronda.',
+      'Por turnos, cada uno elige: continuar (tirar más cartas boca abajo diciendo que son del mismo número, verdad o mentira) o levantar (desconfiar del jugador anterior).',
+      'Al levantar se destapan solo las cartas del anterior: si eran verdad, el montón se lo lleva quien levantó; si era mentira, se lo lleva el que había tirado.',
+      'El que recoge el montón abre una ronda nueva con otro número. Gana quien se queda sin cartas el primero.'
+    ],
+    consejo:'Miente cuando el montón esté pequeño; que te levanten con la mesa llena es letal. Y cuidado si eres el último antes de que te toque, porque a ti es a quien pueden pillar.',
+    nota:'Variante muy común: en vez de quedarse fijo, el número va subiendo cada turno (as, dos, tres...). Aquí está recogida la de número fijo, que es como la juega la mayoría.'
+  },
+  {
+    id:'burro', nombre:'El Burro', palo:'copas',
+    minJ:3, maxJ:8, optLabel:'4-6', optNum:5,
+    tCat:'rapido', tMin:5, tMax:10, dif:1,
+    baraja:'40 (ajustada al nº de jugadores)', cartas:'4',
+    hook:'Empareja y no te quedes con la carta maldita... o te cae el castigo.',
+    objetivo:'No quedarte con la única carta que no tiene pareja. Quien se queda con ella pierde y recibe el castigo.',
+    reglas:[
+      'Prepara tantos grupos de 4 cartas iguales como jugadores haya, más una carta huérfana sin pareja (tradicionalmente el as de oros).',
+      'Reparte 4 cartas a cada uno y baja las parejas que ya tengas.',
+      'Por turnos, roba a ciegas una carta de la mano del de al lado; nada más cogerla la miras y, si te empareja, la bajas.',
+      'Al final queda un único jugador con la carta huérfana: es el burro y pierde.',
+      'Castigo: el perdedor elige una carta y la dice en voz alta. Se saca el mazo de una en una con un castigo por cada carta (pellizco, coscorrón...) hasta que sale la que dijo.'
+    ],
+    consejo:'Es para reírse un rato. Y si eliges bien la carta del castigo... reza para no ser tú el burro.',
+    nota:'Variante rápida (el cerdo): en vez de robar del vecino, todos a la vez pasan una carta al de al lado; el que junta 4 iguales se lleva un dedo a la nariz sin decir nada y los demás le imitan. El último en darse cuenta pierde.'
+  },
+  {
+    id:'hijoputa', nombre:'El Hijoputa', palo:'copas',
+    minJ:3, maxJ:8, optLabel:'4-6', optNum:5,
+    tCat:'medio', tMin:15, tMax:20, dif:1,
+    baraja:'40', cartas:'4-5',
+    hook:'El Uno con baraja española: chupa dos, salta y cambia de palo.',
+    objetivo:'Soltar todas tus cartas antes que nadie, fastidiando al de al lado con cartas especiales que le hacen chupar (robar).',
+    reglas:[
+      'Reparte 4-5 cartas a cada uno y pon una boca arriba para arrancar.',
+      'Echa una carta que coincida en palo o número con la de arriba. Si no puedes, robas del mazo.',
+      'Especiales (varían por casa): As, el siguiente chupa 1. Dos, chupa 2 y se acumula. Sota, cambia el palo. Caballo, salta al siguiente. Siete, cambia el sentido. Rey, repites tú.',
+      'Cuando te quede una sola carta, avisa ("¡última!"). Si se te olvida y te pillan, chupas de castigo.',
+      'Gana quien se queda sin cartas el primero.'
+    ],
+    consejo:'Guarda un dos para defenderte cuando te ataquen con otro dos y te devuelvan la acumulación.',
+    nota:'Es el juego con más versiones caseras: unas roban una carta y otras hasta que puedas jugar; el dos puede acumularse o no; la sota a veces es comodín total; y cada grupo añade sus cartas especiales. Acordadlas antes de empezar.'
+  }
+];
+
+// ---------- Filter state ----------
+const state = {players:null, time:null, dif:null, palos:new Set()};
+
+// ---------- Build filter chips ----------
+function chip(txt, pressed, extra=''){
+  return `<button class="chip" role="button" aria-pressed="${pressed}" ${extra}>${txt}</button>`;
+}
+function pipSvg(palo, cls='pipico'){
+  return `<svg class="${cls}" style="color:${PALOS[palo].color}" aria-hidden="true"><use href="#${palo}"/></svg>`;
+}
+
+function buildFilters(){
+  // players 2..8
+  const pl = document.getElementById('f-players');
+  let h = chip('Todos', state.players===null, 'data-p="null"');
+  for(let n=2;n<=8;n++) h += chip(n, state.players===n, `data-p="${n}"`);
+  pl.innerHTML = h;
+  pl.onclick = e=>{const b=e.target.closest('.chip'); if(!b)return;
+    const v=b.dataset.p; state.players = v==='null'?null:+v; render(); };
+
+  // time
+  const tm = document.getElementById('f-time');
+  let th = chip('Cualquiera', state.time===null, 'data-t="null"');
+  for(const k in TIME) th += chip(TIME[k], state.time===k, `data-t="${k}"`);
+  tm.innerHTML = th;
+  tm.onclick = e=>{const b=e.target.closest('.chip'); if(!b)return;
+    const v=b.dataset.t; state.time = v==='null'?null:v; render(); };
+
+  // difficulty
+  const df = document.getElementById('f-dif');
+  let dh = chip('Cualquiera', state.dif===null, 'data-d="null"');
+  for(const k in DIF) dh += chip(DIF[k], state.dif==+k, `data-d="${k}"`);
+  df.innerHTML = dh;
+  df.onclick = e=>{const b=e.target.closest('.chip'); if(!b)return;
+    const v=b.dataset.d; state.dif = v==='null'?null:+v; render(); };
+
+  // palo (multi)
+  const pa = document.getElementById('f-palo');
+  let ah='';
+  for(const k in PALOS){
+    ah += chip(`${pipSvg(k)} ${PALOS[k].label}`, state.palos.has(k), `data-palo="${k}"`);
+  }
+  pa.innerHTML = ah;
+  pa.onclick = e=>{const b=e.target.closest('.chip'); if(!b)return;
+    const v=b.dataset.palo;
+    state.palos.has(v)?state.palos.delete(v):state.palos.add(v); render(); };
+}
+
+// ---------- Filtering ----------
+function matches(g){
+  if(state.players!==null && !(g.minJ<=state.players && state.players<=g.maxJ)) return false;
+  if(state.time!==null && g.tCat!==state.time) return false;
+  if(state.dif!==null && g.dif!==state.dif) return false;
+  if(state.palos.size && !state.palos.has(g.palo)) return false;
+  return true;
+}
+
+// ---------- Render grid ----------
+function dots(dif){
+  let d='';
+  for(let i=1;i<=3;i++) d+=`<span class="dot ${i<=dif?'on':''}"></span>`;
+  return `<span class="dots" aria-hidden="true">${d}</span>`;
+}
+function naipeCard(g){
+  return `
+  <button class="naipe" data-id="${g.id}" aria-label="${g.nombre} — ver reglas">
+    <span class="corner tl"><span class="rank">${g.optNum}</span>${pipSvg(g.palo,'pipico')}</span>
+    <span class="corner br"><span class="rank">${g.optNum}</span>${pipSvg(g.palo,'pipico')}</span>
+    <div class="body">
+      <div class="fam" style="color:${PALOS[g.palo].color}">${PALOS[g.palo].label}</div>
+      <h3>${g.nombre}</h3>
+      <p class="hook">${g.hook}</p>
+      <div class="stats">
+        <span class="stat"><svg><use href="#i-players"/></svg> <b>${g.minJ}${g.maxJ>g.minJ?'–'+g.maxJ:''}</b></span>
+        <span class="stat"><svg><use href="#i-clock"/></svg> <b>${g.tMin}–${g.tMax}</b>&nbsp;min</span>
+        <span class="stat" title="Dificultad: ${DIF[g.dif]}">${dots(g.dif)} ${DIF[g.dif]}</span>
+      </div>
+      <span class="verlink">Ver reglas <svg><use href="#i-arrow"/></svg></span>
+    </div>
+  </button>`;
+}
+
+function render(){
+  buildFilters();
+  const list = GAMES.filter(matches);
+  const grid = document.getElementById('grid');
+  const cnt = document.getElementById('count');
+  cnt.innerHTML = `<b>${list.length}</b> ${list.length===1?'juego':'juegos'}`;
+  if(!list.length){
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1">
+      <p>No hay ningún juego con esos filtros.</p>
+      <span>Quita alguno y vuelve a probar.</span></div>`;
+    return;
+  }
+  grid.innerHTML = list.map(naipeCard).join('');
+  grid.querySelectorAll('.naipe').forEach(el=>{
+    el.onclick = ()=>openSheet(el.dataset.id);
+  });
+}
+
+// ---------- Detail sheet ----------
+function openSheet(id){
+  const g = GAMES.find(x=>x.id===id);
+  const steps = g.reglas.map(r=>`<li>${r}</li>`).join('');
+  const sheet = document.getElementById('sheet');
+  sheet.innerHTML = `
+    <button class="closeb" id="closeb" aria-label="Cerrar">&times;</button>
+    <div class="sheet-head">
+      <svg class="bigpip" style="color:${PALOS[g.palo].color}" aria-hidden="true"><use href="#${g.palo}"/></svg>
+      <div class="htext">
+        <div class="fam" style="color:${PALOS[g.palo].color}">${PALOS[g.palo].label}</div>
+        <h2 id="sheet-title">${g.nombre}</h2>
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div class="metabar">
+        <span class="stat"><svg><use href="#i-players"/></svg> <b>${g.minJ}${g.maxJ>g.minJ?'–'+g.maxJ:''}</b>&nbsp;jugadores (ideal ${g.optLabel})</span>
+        <span class="stat"><svg><use href="#i-clock"/></svg> <b>${g.tMin}–${g.tMax}</b>&nbsp;min</span>
+        <span class="stat">${dots(g.dif)} ${DIF[g.dif]}</span>
+        <span class="stat"><svg><use href="#i-deck"/></svg> ${g.baraja}</span>
+        <span class="stat">Cartas al empezar: <b>${g.cartas}</b></span>
+      </div>
+      ${SK[g.id]?`<button class="track-btn" data-track="${g.id}">Llevar la cuenta de este juego</button>`:''}
+      <h4>El objetivo</h4>
+      <p class="obj">${g.objetivo}</p>
+      ${g.valores?`<h4>Valor de las cartas</h4><p class="vals">${g.valores}</p>`:''}
+      <h4>Cómo se juega</h4>
+      <ol class="steps">${steps}</ol>
+      ${g.consejo?`<h4>Consejo</h4><p class="tip">${g.consejo}</p>`:''}
+      ${g.nota?`<p class="note">${g.nota}</p>`:''}
+    </div>`;
+  const ov = document.getElementById('overlay');
+  ov.classList.add('open');
+  document.body.style.overflow='hidden';
+  document.getElementById('closeb').onclick = closeSheet;
+  const _tb = sheet.querySelector('.track-btn');
+  if(_tb) _tb.onclick = ()=>{ sbSetGame(_tb.dataset.track); closeSheet(); switchView('scores'); };
+  sheet.scrollTop = 0;
+  document.getElementById('closeb').focus();
+}
+function closeSheet(){
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.getElementById('overlay')?.addEventListener('click', e=>{
+  if(e.target.id==='overlay') closeSheet();
+});
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheet(); });
+
+// ---------- Surprise me ----------
+document.getElementById('surprise').onclick = ()=>{
+  const list = GAMES.filter(matches);
+  if(!list.length){ return; }
+  const pick = list[Math.floor(Math.random()*list.length)];
+  openSheet(pick.id);
+};
+
+/* ================= MARCADOR ================= */
+const SK = {
+  chinchon:{name:'Chinchón', dir:'low',  target:100, elim:true,  teams:false, defParts:4, word:'ronda',
+            rounds:[{type:'amteach', label:'Puntos que le sobran'}]},
+  escoba:  {name:'Escoba',   dir:'high', target:21,  elim:false, teams:false, defParts:2, word:'ronda', targets:[15,21,30],
+            rounds:[
+              {type:'pick',  label:'Más cartas', pts:1},
+              {type:'pick',  label:'Más oros',   pts:1},
+              {type:'pick',  label:'7 de oros',  pts:1},
+              {type:'pick',  label:'Más sietes', pts:1},
+              {type:'count', label:'Escobas',    pts:1}
+            ]},
+  mus:     {name:'Mus',      dir:'high', target:30,  elim:false, teams:true,  defParts:2, word:'mano', targets:[30,40],
+            rounds:[
+              {type:'pickamt', label:'Grande'},
+              {type:'pickamt', label:'Chica'},
+              {type:'pickamt', label:'Pares'},
+              {type:'pickamt', label:'Juego'}
+            ]},
+  tute:    {name:'Tute',     dir:'high', target:101, elim:false, teams:false, defParts:2, word:'mano', quick:[10,20]},
+  brisca:  {name:'Brisca',   dir:'high', target:61,  elim:false, teams:false, defParts:2, word:'mano', quick:[5,10]},
+  libre:   {name:'Libre',    dir:'high', target:0,   elim:false, teams:false, defParts:2, word:'ronda', quick:[1,5,10]}
+};
+let score = null;
+let roundState = {};
+let sbHistory = [];
+
+function escapeAttr(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function pushHistory(){ sbHistory.push(JSON.stringify(score.parts)); if(sbHistory.length>60) sbHistory.shift(); }
+function sbUndo(){ if(!sbHistory.length) return; score.parts = JSON.parse(sbHistory.pop()); saveScore(); renderScores(); }
+
+function sbDefaultParts(pre){
+  if(pre.teams) return [{name:'Nosotros',pts:0},{name:'Ellos',pts:0}];
+  const a=[]; for(let i=0;i<pre.defParts;i++) a.push({name:'Jugador '+(i+1),pts:0}); return a;
+}
+function resetRound(){
+  roundState={}; const pre=score&&SK[score.key]; if(!pre||!pre.rounds) return;
+  pre.rounds.forEach((cat,ci)=>{
+    if(cat.type==='count') roundState[ci]=score.parts.map(()=>0);
+    else if(cat.type==='amteach') roundState[ci]=score.parts.map(()=>'');
+    else if(cat.type==='pickamt') roundState[ci]={who:null,amt:''};
+    else roundState[ci]=null;
+  });
+}
+function sbSetGame(key){ const pre=SK[key]; score={key,target:pre.target,parts:sbDefaultParts(pre)}; sbHistory=[]; resetRound(); saveScore(); renderScores(); }
+function sbSetTarget(n){ if(isNaN(n))n=0; score.target=Math.max(0,n|0); saveScore(); renderScores(); }
+function sbSetCount(n){ const pre=SK[score.key]; if(pre.teams)return; n=Math.max(2,Math.min(8,n)); const c=score.parts.length;
+  if(n>c){for(let i=c;i<n;i++) score.parts.push({name:'Jugador '+(i+1),pts:0});} else {score.parts.length=n;} sbHistory=[]; resetRound(); saveScore(); renderScores(); }
+function sbRename(i,v){ score.parts[i].name=v; saveScore(); }
+function sbSetExact(i,v){ let n=parseInt(v,10); if(isNaN(n))n=0; pushHistory(); score.parts[i].pts=n; saveScore(); renderScores(); }
+function sbAdd(i,d){ pushHistory(); score.parts[i].pts+=d; saveScore(); renderScores(); }
+function sbReset(){ pushHistory(); score.parts.forEach(p=>p.pts=0); resetRound(); saveScore(); renderScores(); }
+function saveScore(){ try{localStorage.setItem('juegos_marcador',JSON.stringify(score));}catch(e){} }
+function loadScore(){ try{const s=localStorage.getItem('juegos_marcador'); if(s){const o=JSON.parse(s); if(o&&SK[o.key]&&Array.isArray(o.parts)&&o.parts.length) return o;}}catch(e){} return null; }
+
+function sbPick(ci,val){ const cat=SK[score.key].rounds[ci]; if(cat.type==='pick') roundState[ci]=val; else { if(!roundState[ci])roundState[ci]={who:null,amt:''}; roundState[ci].who=val; } renderScores(); }
+function sbCount(ci,i,d){ if(!roundState[ci])roundState[ci]=score.parts.map(()=>0); roundState[ci][i]=Math.max(0,(roundState[ci][i]||0)+d); renderScores(); }
+function roundPointsFor(i){
+  const pre=SK[score.key]; if(!pre.rounds) return 0; let s=0;
+  pre.rounds.forEach((cat,ci)=>{ const rs=roundState[ci];
+    if(cat.type==='amteach'){ if(rs&&rs[i]) s+=parseInt(rs[i],10)||0; }
+    else if(cat.type==='pick'){ if(rs===i) s+=cat.pts; }
+    else if(cat.type==='pickamt'){ if(rs&&rs.who===i) s+=parseInt(rs.amt,10)||0; }
+    else if(cat.type==='count'){ if(rs&&rs[i]) s+=(rs[i]||0)*cat.pts; }
+  });
+  return s;
+}
+function sbApplyRound(){ const pre=SK[score.key]; if(!pre.rounds) return; pushHistory(); score.parts.forEach((p,i)=> p.pts+=roundPointsFor(i)); resetRound(); saveScore(); renderScores(); }
+
+function sbWinner(){
+  if(!score) return null; const pre=SK[score.key];
+  if(pre.dir==='high'){
+    if(score.target>0 && score.parts.some(p=>p.pts>=score.target)) return score.parts.reduce((a,b)=>b.pts>a.pts?b:a);
+    return null;
+  }
+  if(pre.elim && score.target>0){
+    const alive=score.parts.filter(p=>p.pts<score.target);
+    if(score.parts.length>1 && alive.length===1) return alive[0];
+  }
+  return null;
+}
+
+function roundPanelHTML(pre){
+  if(!pre.rounds) return '';
+  let cats='';
+  pre.rounds.forEach((cat,ci)=>{
+    if(cat.type==='amteach') return;
+    if(cat.type==='pick'||cat.type==='pickamt'){
+      const sel = cat.type==='pick' ? roundState[ci] : (roundState[ci]?roundState[ci].who:null);
+      let opts = score.parts.map((p,i)=>`<button class="ropt ${sel===i?'on':''}" data-cat="${ci}" data-i="${i}">${escapeAttr(p.name)}</button>`).join('');
+      opts += `<button class="ropt ${sel===null?'on':''}" data-cat="${ci}" data-i="none">Nadie</button>`;
+      const amt = cat.type==='pickamt' ? `<input class="ramt" type="number" min="0" data-cat="${ci}" value="${roundState[ci]&&roundState[ci].amt!==''?roundState[ci].amt:''}" placeholder="tantos" aria-label="Tantos de ${cat.label}">` : '';
+      cats += `<div class="rcat"><div class="rcat-label">${cat.label}${cat.pts?` <span class="rcat-pts">+${cat.pts}</span>`:''}</div><div class="rcat-opts">${opts}${amt}</div></div>`;
+    } else if(cat.type==='count'){
+      const counts = score.parts.map((p,i)=>{
+        const v = roundState[ci]&&roundState[ci][i]?roundState[ci][i]:0;
+        return `<div class="rcount"><span>${escapeAttr(p.name)}</span><button class="rcbtn" data-cat="${ci}" data-i="${i}" data-d="-1" aria-label="Menos">−</button><b>${v}</b><button class="rcbtn" data-cat="${ci}" data-i="${i}" data-d="1" aria-label="Más">+</button></div>`;
+      }).join('');
+      cats += `<div class="rcat"><div class="rcat-label">${cat.label} <span class="rcat-pts">+${cat.pts} cada una</span></div><div class="rcat-counts">${counts}</div></div>`;
+    }
+  });
+  const hint = pre.rounds.some(c=>c.type==='amteach') ? `<p class="round-hint">Escribe los puntos de cada jugador arriba y pulsa el botón.</p>` : '';
+  return `<div class="round-panel"><div class="round-title">Puntos de esta ${pre.word}</div>${cats}${hint}<button class="round-add" id="sb-addround">Sumar la ${pre.word} al marcador</button></div>`;
+}
+
+function renderScores(){
+  if(!score){ score=loadScore(); if(!score){ sbSetGame('chinchon'); return; } resetRound(); }
+  const pre=SK[score.key];
+
+  document.getElementById('sb-game').innerHTML = Object.keys(SK).map(k=>
+    `<button class="chip" role="button" aria-pressed="${k===score.key}" data-key="${k}">${SK[k].name}</button>`).join('');
+
+  let tgtHTML;
+  if(pre.targets){
+    tgtHTML = pre.targets.map(t=>`<button class="chip" role="button" aria-pressed="${t===score.target}" data-target="${t}">${t}</button>`).join('');
+  } else {
+    tgtHTML = `<input class="tgt" type="number" min="0" value="${score.target}" aria-label="Objetivo"><span class="tgt-hint">${score.target>0?'para ganar':'sin objetivo'}</span>`;
+  }
+  const countHTML = pre.teams
+    ? `<span class="ctl-static">2 parejas enfrentadas</span>`
+    : [2,3,4,5,6,7,8].map(n=>`<button class="chip" role="button" aria-pressed="${n===score.parts.length}" data-count="${n}">${n}</button>`).join('');
+  const dirText = pre.dir==='high'
+    ? (score.target>0?'Gana quien llega antes al objetivo':'Cuenta libre, sin ganador automático')
+    : `Gana quien menos suma · a los ${score.target} quedas eliminado`;
+  document.getElementById('sb-controls').innerHTML =
+    `<div class="ctl"><span class="ctl-label">Objetivo</span><div class="ctl-body">${tgtHTML}</div></div>
+     <div class="ctl"><span class="ctl-label">${pre.teams?'Equipos':'Jugadores'}</span><div class="ctl-body">${countHTML}</div></div>
+     <div class="dirbadge">${dirText}</div>
+     ${score.key!=='libre'?`<button class="rules-link" data-rules="${score.key}">Ver reglas de este juego</button>`:''}`;
+
+  const win = sbWinner();
+  document.getElementById('sb-banner').innerHTML = win
+    ? `<div class="sb-win"><span>Gana <b>${escapeAttr(win.name)}</b></span><button id="sb-again">Nueva partida</button></div>` : '';
+
+  const isOut = p => pre.dir==='low' && pre.elim && score.target>0 && p.pts>=score.target;
+  let leaderPts;
+  if(pre.dir==='high'){ leaderPts = Math.max(...score.parts.map(p=>p.pts)); }
+  else { const alive=score.parts.filter(p=>!isOut(p)).map(p=>p.pts); leaderPts = alive.length?Math.min(...alive):null; }
+
+  const amtIdx = pre.rounds ? pre.rounds.findIndex(c=>c.type==='amteach') : -1;
+
+  document.getElementById('sb-grid').innerHTML = score.parts.map((p,i)=>{
+    const out=isOut(p);
+    const leader = !out && !win && leaderPts!==null && p.pts===leaderPts && (pre.dir==='low'||leaderPts>0);
+    const cls = (win&&win===p)?'winner':(out?'out':(leader?'leader':''));
+    const label = (win&&win===p)?'<span style="color:#a97e12">Ganador</span>'
+      :(out?'<span style="color:var(--copas)">Eliminado</span>'
+      :(leader?'<span style="color:var(--bastos)">En cabeza</span>':''));
+    let mid;
+    if(!pre.rounds){
+      const quick=(pre.quick||[]).map(q=>`<button class="qk" data-i="${i}" data-d="${q}">+${q}</button>`).join('');
+      mid = `<div class="ptot-wrap"><button class="pm" data-i="${i}" data-d="-1" aria-label="Restar 1">−</button><input class="ptot" type="number" value="${p.pts}" data-i="${i}" aria-label="Puntos"><button class="pp" data-i="${i}" data-d="1" aria-label="Sumar 1">+</button></div><div class="pquick">${quick}</div>`;
+    } else {
+      let roundArea;
+      if(amtIdx>=0){
+        const rv = roundState[amtIdx] ? roundState[amtIdx][i] : '';
+        roundArea = `<input class="rin" type="number" data-round="${amtIdx}" data-i="${i}" value="${rv===0?0:(rv||'')}" placeholder="0" aria-label="Puntos de esta ${pre.word}"><div class="rin-lab">suma esta ${pre.word}</div>`;
+      } else {
+        const rp=roundPointsFor(i);
+        roundArea = `<div class="rprev">${rp>0?'+'+rp:'—'}</div><div class="rin-lab">esta ${pre.word}</div>`;
+      }
+      mid = roundArea + `<div class="ptot-line"><span>Total</span><button class="pm" data-i="${i}" data-d="-1" aria-label="Restar 1">−</button><input class="ptot" type="number" value="${p.pts}" data-i="${i}" aria-label="Puntos totales"><button class="pp" data-i="${i}" data-d="1" aria-label="Sumar 1">+</button></div>`;
+    }
+    return `<div class="pcard ${cls}"><input class="pname" value="${escapeAttr(p.name)}" data-i="${i}" aria-label="Nombre">${mid}<div class="plabel">${label}</div></div>`;
+  }).join('');
+
+  document.getElementById('sb-round').innerHTML = roundPanelHTML(pre);
+  const undoBtn=document.getElementById('sb-undo'); if(undoBtn) undoBtn.hidden = sbHistory.length===0;
+}
+
+function initScores(){
+  document.getElementById('sb-game')?.addEventListener('click',e=>{const b=e.target.closest('[data-key]'); if(b) sbSetGame(b.dataset.key);});
+  const ctl=document.getElementById('sb-controls');
+  ctl?.addEventListener('click',e=>{
+    const t=e.target.closest('[data-target]'); if(t){sbSetTarget(+t.dataset.target);return;}
+    const c=e.target.closest('[data-count]'); if(c){sbSetCount(+c.dataset.count);return;}
+    const r=e.target.closest('[data-rules]'); if(r){ switchView('games'); openSheet(r.dataset.rules); }
+  });
+  ctl?.addEventListener('change',e=>{ if(e.target.classList.contains('tgt')) sbSetTarget(parseInt(e.target.value,10)); });
+  const grid=document.getElementById('sb-grid');
+  grid?.addEventListener('click',e=>{const b=e.target.closest('button[data-d]'); if(b) sbAdd(+b.dataset.i,+b.dataset.d);});
+  grid?.addEventListener('input',e=>{ if(e.target.classList.contains('rin')){ const ci=+e.target.dataset.round,i=+e.target.dataset.i; if(!roundState[ci])roundState[ci]=score.parts.map(()=>''); roundState[ci][i]=e.target.value===''?'':(parseInt(e.target.value,10)||0); } });
+  grid?.addEventListener('change',e=>{
+    if(e.target.classList.contains('pname')) sbRename(+e.target.dataset.i,e.target.value);
+    else if(e.target.classList.contains('ptot')) sbSetExact(+e.target.dataset.i,e.target.value);
+  });
+  const rpanel=document.getElementById('sb-round');
+  rpanel?.addEventListener('click',e=>{
+    if(e.target.closest('#sb-addround')){ sbApplyRound(); return; }
+    const opt=e.target.closest('.ropt'); if(opt){ const iv=opt.dataset.i; sbPick(+opt.dataset.cat, iv==='none'?null:+iv); return; }
+    const cb=e.target.closest('.rcbtn'); if(cb){ sbCount(+cb.dataset.cat,+cb.dataset.i,+cb.dataset.d); return; }
+  });
+  rpanel?.addEventListener('change',e=>{ if(e.target.classList.contains('ramt')){ const ci=+e.target.dataset.cat; if(!roundState[ci])roundState[ci]={who:null,amt:''}; roundState[ci].amt=e.target.value; renderScores(); } });
+  document.getElementById('sb-reset')?.addEventListener('click',sbReset);
+  document.getElementById('sb-undo')?.addEventListener('click',sbUndo);
+  document.getElementById('sb-banner')?.addEventListener('click',e=>{ if(e.target.id==='sb-again') sbReset(); });
+  score=loadScore();
+  if(!score){ sbSetGame('chinchon'); } else { resetRound(); renderScores(); }
+}
+
+function switchView(v){
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected', String(t.dataset.view===v)));
+  document.getElementById('view-games').hidden = v!=='games';
+  document.getElementById('view-scores').hidden = v!=='scores';
+  if(v==='scores') renderScores();
+  window.scrollTo(0,0);
+}
+document.querySelector('.tabs')?.addEventListener('click',e=>{const t=e.target.closest('.tab'); if(t) switchView(t.dataset.view);});
+
+initScores();
+render();
+</script>
+<script>
+/* Registro del service worker (solo si se sirve por http/https, no file://) */
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function () { /* sin offline, pero la app funciona */ });
+  });
+}
+</script>
+</body>
+</html>
