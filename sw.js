@@ -1,5 +1,5 @@
 /* Service worker: ¿A qué jugamos? — funciona sin conexión */
-const CACHE = 'juegos-cartas-v1';
+const CACHE = 'juegos-cartas-v2';
 
 /* Núcleo de la app que se guarda nada más instalar */
 const CORE = [
@@ -20,10 +20,11 @@ self.addEventListener('install', (e) => {
   );
 });
 
+// Al actualizarse solo borra sus cachés (juegos-cartas-*): en la misma web hay otras apps con las suyas
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith('juegos-cartas-') && k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
