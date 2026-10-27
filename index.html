@@ -99,6 +99,14 @@
     color:var(--gold);font-weight:600;margin:0 0 7px 2px;
   }
   .chips{display:flex;flex-wrap:wrap;gap:7px;}
+  /* Filtros de jugadores y familia: siempre en una línea */
+  #f-players,#f-palo{flex-wrap:nowrap;gap:5px;}
+  #f-players .chip,#f-palo .chip{flex:1;justify-content:center;padding:7px 6px;gap:4px;white-space:nowrap;}
+  #f-players .chip{flex:1 1 0;min-width:0;}
+  #f-players .chip:first-child{flex:0 0 auto;padding:7px 10px;}
+  #f-palo .chip{font-size:.8rem;padding:7px 4px;min-width:0;}
+  #sb-game{flex-wrap:nowrap;gap:4px;}
+  #sb-game .chip{flex:1 1 auto;justify-content:center;min-width:0;padding:7px 5px;font-size:.78rem;white-space:nowrap;}
   .chip{
     font-family:var(--sans);font-size:.9rem;font-weight:600;
     color:#e9e0c8;background:rgba(241,232,210,.07);
@@ -526,10 +534,10 @@
 
 <script>
 const PALOS = {
-  oros:    {label:'Apuestas y farol', color:'var(--oros)'},
-  espadas: {label:'Juego de bazas',   color:'var(--espadas)'},
-  copas:   {label:'Fiesta y risas',   color:'var(--copas)'},
-  bastos:  {label:'Habilidad',        color:'var(--bastos)'}
+  oros:    {label:'Apuestas y farol', corto:'Apuestas',  color:'var(--oros)'},
+  espadas: {label:'Juego de bazas',   corto:'Bazas',     color:'var(--espadas)'},
+  copas:   {label:'Fiesta y risas',   corto:'Fiesta',    color:'var(--copas)'},
+  bastos:  {label:'Habilidad',        corto:'Habilidad', color:'var(--bastos)'}
 };
 const TIME = {rapido:'Rápido', medio:'Medio', largo:'Largo'};
 const DIF  = {1:'Fácil', 2:'Media', 3:'Difícil'};
@@ -793,7 +801,7 @@ function buildFilters(){
   const pa = document.getElementById('f-palo');
   let ah='';
   for(const k in PALOS){
-    ah += chip(`${pipSvg(k)} ${PALOS[k].label}`, state.palos.has(k), `data-palo="${k}"`);
+    ah += chip(`${pipSvg(k)} ${PALOS[k].corto}`, state.palos.has(k), `data-palo="${k}" title="${PALOS[k].label}"`);
   }
   pa.innerHTML = ah;
   pa.onclick = e=>{const b=e.target.closest('.chip'); if(!b)return;
