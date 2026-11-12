@@ -414,6 +414,12 @@
   @media (prefers-reduced-motion: reduce){
     *{animation:none !important;transition:none !important;}
   }
+details.leyenda summary,details.mas summary{cursor:pointer;font-size:.85rem;opacity:.85;padding:.4rem 0;list-style:none;text-align:center}
+details.mas summary{text-align:left;font-weight:600;letter-spacing:.02em}
+details.leyenda summary::-webkit-details-marker,details.mas summary::-webkit-details-marker{display:none}
+details.leyenda summary::after,details.mas summary::after{content:' ▾'}
+details[open].leyenda summary::after,details[open].mas summary::after{content:' ▴'}
+@media (max-width:600px){header .sub{display:none}}
 </style>
 </head>
 <body>
@@ -472,6 +478,7 @@
     </div>
     <h1>¿A qué jugamos?</h1>
     <p class="sub">Doce juegos de la baraja española. Filtra por cuánta gente sois, el rato que tenéis y las ganas de complicaros.</p>
+    <details class="leyenda"><summary>¿Qué significan el número y el palo?</summary>
     <div class="legend">
       <span class="lg"><b>El número</b> de la esquina = jugadores ideales</span>
       <span class="lg">El palo = la familia del juego:</span>
@@ -480,6 +487,7 @@
       <span class="lg"><svg style="color:var(--copas)"><use href="#copas"/></svg> fiesta</span>
       <span class="lg"><svg style="color:var(--bastos)"><use href="#bastos"/></svg> habilidad</span>
     </div>
+    </details>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Secciones">
@@ -493,6 +501,7 @@
       <p class="flabel">Jugadores</p>
       <div class="chips" id="f-players" role="group"></div>
     </div>
+    <details class="mas" id="masFiltros"><summary>Más filtros: duración, dificultad y tipo</summary>
     <div class="frow">
       <p class="flabel">Cuánto dura</p>
       <div class="chips" id="f-time" role="group"></div>
@@ -505,6 +514,7 @@
       <p class="flabel">Tipo de juego</p>
       <div class="chips" id="f-palo" role="group"></div>
     </div>
+    </details>
     <button class="surprise" id="surprise">Sorpréndeme</button>
   </section>
 
@@ -533,6 +543,7 @@
 </div>
 
 <script>
+try{if(matchMedia('(min-width:601px)').matches){document.getElementById('masFiltros').open=true;}}catch(e){}
 const PALOS = {
   oros:    {label:'Apuestas y farol', corto:'Apuestas',  color:'var(--oros)'},
   espadas: {label:'Juego de bazas',   corto:'Bazas',     color:'var(--espadas)'},

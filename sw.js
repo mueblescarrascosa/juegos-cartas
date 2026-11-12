@@ -1,5 +1,5 @@
 /* Service worker: ¿A qué jugamos? — funciona sin conexión */
-const CACHE = 'juegos-cartas-v4';
+const CACHE = 'juegos-cartas-v5';
 
 /* Núcleo de la app que se guarda nada más instalar */
 const CORE = [
